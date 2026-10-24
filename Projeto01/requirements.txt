@@ -1,0 +1,4 @@
+# Pacotes usados diretamente pelo Projeto01.
+langchain==1.4.7
+langchain-openai==1.7.2
+python-dotenv==1.2.4
