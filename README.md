@@ -11,9 +11,10 @@ O foco inicial é código curto, comentado e fácil de experimentar.
 | Projeto | O que você aprende | Guia |
 | --- | --- | --- |
 | Projeto01 | Criar três ferramentas, consultar documentos de uma empresa fictícia e manter uma conversa no terminal. | [README do Projeto01](Projeto01/README.md) |
+| Projeto02 | Explorar California Housing Prices com Pandas, usar AGENTS.md e uma skill, executar Python e gerar gráficos. | [README do Projeto02](Projeto02/README.md) |
 
 Novos projetos podem acrescentar busca, memória persistente, avaliações e outros
-agentes conforme a série avançar. Atualmente, o repositório contém o Projeto01.
+agentes conforme a série avançar. Atualmente, o repositório contém os Projetos 01 e 02.
 
 ## Preparar o ambiente
 
@@ -39,8 +40,8 @@ OPENAI_API_KEY=sua_chave_aqui
 
 O arquivo `.env.example` contém apenas o nome da variável para servir de modelo.
 Se você já tem um `.env` configurado, mantenha sua chave nele.
-O Projeto01 carrega esse arquivo automaticamente e também aceita um `.env` na
-própria pasta do projeto. Para a mesma variável, o arquivo local do projeto tem
+Os projetos carregam esse arquivo automaticamente e também aceitam um `.env` na
+própria pasta. Para a mesma variável, o arquivo local do projeto tem
 prioridade sobre o da raiz; variáveis exportadas no terminal têm prioridade sobre ambos.
 
 O modelo configurado é GPT-6 Luna (`gpt-6-luna`), com raciocínio `low`.
@@ -61,6 +62,20 @@ Exemplo de pergunta:
 Continue fazendo perguntas no mesmo terminal. Digite `sair` para encerrar.
 Para sair do ambiente virtual depois, execute `deactivate`.
 
+## Executar a analista de dados imobiliários
+
+Com o ambiente ativo e o CSV em `Projeto02/dados/housing.csv`:
+
+```bash
+python -m Projeto02.main
+```
+
+Antes de iniciar o agente, o programa imprime o contexto da base e um resumo dos dados.
+Experimente: “Compare os valores dos imóveis por proximidade do oceano e salve um relatório”.
+O [guia do Projeto02](Projeto02/README.md) explica o download da base, a skill e o AGENTS.md.
+Para gerar gráficos, experimente: “Use Python para explorar a relação entre renda e valor dos imóveis”.
+O executor usa a mesma `.venv` da raiz e salva o código e os arquivos em `Projeto02/resultados`.
+
 ## Organização
 
 ```text
@@ -69,17 +84,20 @@ ProjetosBlog/
 ├── requirements.txt
 ├── .env.example
 ├── .gitignore
-└── Projeto01/
+├── Projeto01/
+│   ├── README.md
+│   ├── requirements.txt
+│   ├── main.py
+│   └── workspace/         # Documentos fictícios para consulta
+└── Projeto02/
     ├── README.md
     ├── requirements.txt
     ├── main.py
-    └── workspace/
-        ├── empresa_indice.md
-        ├── empresa_perfil_e_equipe.md
-        ├── empresa_normas_de_trabalho.md
-        ├── empresa_despesas_e_reembolsos.md
-        ├── empresa_clientes_e_projetos.md
-        └── notas_agentes.md
+    ├── execucao_python.py  # Executor local com a .venv da raiz
+    ├── AGENTS.md
+    ├── dados/             # CSV original, mantido localmente
+    ├── skills/            # Procedimento de análise em SKILL.md
+    └── resultados/        # Relatórios gerados
 ```
 
 ## Arquivos locais e Git
@@ -91,6 +109,9 @@ versionados porque não contêm chaves.
 No Projeto01, os documentos fictícios de estudo são versionados. Os demais
 arquivos criados em `workspace`, como resumos e rascunhos, ficam apenas na sua máquina.
 A pasta de trabalho pode conter exemplos gerados em execuções anteriores.
+
+No Projeto02, o CSV baixado e os relatórios de análise também ficam locais.
+As instruções, a skill e os READMEs acompanham o repositório.
 
 Todos os dados da Aurora Nuvem foram inventados para os exercícios.
 
