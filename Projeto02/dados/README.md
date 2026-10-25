@@ -1,37 +1,29 @@
 # Dados do Projeto02
 
-Fonte: [California Housing Prices, publicado por Cam Nugent no Kaggle](https://www.kaggle.com/datasets/camnugent/california-housing-prices).
+Os arquivos são criados pelas ferramentas do agente, sem download manual:
 
-O arquivo esperado é `housing.csv`. A versão baixada em 24 de outubro de 2026
-tem **20.640 linhas e 10 colunas**. O arquivo fica local e está ignorado pelo Git.
+| Arquivo | Conteúdo | Fonte |
+| --- | --- | --- |
+| `fundamentos.csv` | Última comparação de indicadores de empresas do mesmo setor e subsetor. | Fundamentus, páginas de detalhes de cada papel. |
+| `precos.csv` | Última comparação de fechamentos diários em datas comuns. | TradingView via TVDatafeed, bolsa BMFBOVESPA. |
 
-## Obter os dados
+`fundamentos.csv` inclui ticker, empresa, setor, subsetor, cotação, data da cotação,
+último balanço, P/L, P/VP, ROE, DY, margem líquida, EV/EBITDA, coleta e URL da fonte.
+Campos `_pct` já representam percentuais: 6.4 significa 6,4%. Campos indisponíveis
+ficam vazios, sem serem transformados em zero. Os indicadores são um retrato atual.
 
-1. Abra o link da fonte e baixe o conjunto de dados.
-2. Extraia `housing.csv` do ZIP.
-3. Coloque o arquivo nesta pasta, ao lado deste README.
+`precos.csv` tem a coluna `data` e uma coluna de fechamento por papel. As linhas
+já estão no intervalo comum usado no cálculo. O conector solicita ajuste por
+splits; não há coleta de proventos nem cálculo de retorno total com reinvestimento.
+As datas solicitadas e efetivas aparecem na resposta da ferramenta.
 
-## Contexto e colunas
+Uma nova comparação substitui o CSV correspondente; os gráficos e relatórios
+ficam em pastas próprias dentro de `resultados`. A tabela de fundamentos por
+empresa é reutilizada na memória durante a sessão. Reinicie para uma nova coleta.
 
-Os dados têm origem no censo de 1990 da Califórnia. Cada linha corresponde a
-um grupo censitário, uma pequena área geográfica com vários domicílios.
-É uma base histórica e agregada, sem preços atuais ou endereços individuais.
-A [descrição de Aurélien Géron](https://github.com/ageron/handson-ml2/tree/master/datasets/housing)
-explica a origem e as alterações da versão didática.
+O executor Python lê cópias temporárias desses dois arquivos. Os CSVs, arquivos
+ZIP e resultados ficam ignorados pelo Git. Arquivos de bases usadas em versões
+anteriores, se ainda estiverem nesta pasta, não são lidos pelo projeto atual.
 
-| Coluna | Significado |
-| --- | --- |
-| longitude, latitude | Coordenadas geográficas do grupo. |
-| housing_median_age | Idade mediana das moradias, em anos. |
-| total_rooms | Total de cômodos no grupo. |
-| total_bedrooms | Total de quartos no grupo; há 207 valores ausentes. |
-| population | População do grupo. |
-| households | Quantidade de domicílios do grupo. |
-| median_income | Renda mediana na escala original fornecida pela base. |
-| median_house_value | Valor mediano dos imóveis do grupo, em USD. |
-| ocean_proximity | Categoria de proximidade aproximada do oceano. |
-
-O programa mantém as colunas e os valores ausentes originais. A média de
-`median_house_value` é uma média das medianas dos grupos, sem ponderação,
-e não o preço médio de todas as casas. Para uso e redistribuição, consulte
-os termos apresentados pelo publicador da base.
+Fontes: [Fundamentus](https://www.fundamentus.com.br/),
+[TVDatafeed](https://github.com/rongardF/tvdatafeed).

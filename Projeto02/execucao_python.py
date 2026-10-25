@@ -11,7 +11,7 @@ from uuid import uuid4
 PYTHON = Path(__file__).resolve().parent.parent / ".venv" / "bin" / "python"
 
 
-def executar_codigo(codigo: str, arquivo_csv: Path, resultados: Path, timeout: int = 30) -> dict:
+def executar_codigo(codigo: str, dados: Path, resultados: Path, timeout: int = 30) -> dict:
     if not PYTHON.is_file():
         raise FileNotFoundError("Crie a .venv na raiz e instale as dependências do Projeto02.")
     if not codigo.strip() or len(codigo) > 20_000:
@@ -24,16 +24,21 @@ def executar_codigo(codigo: str, arquivo_csv: Path, resultados: Path, timeout: i
 
     with TemporaryDirectory(prefix="projeto02_") as temporario:
         temporario = Path(temporario)
-        copia = temporario / arquivo_csv.name
-        shutil.copyfile(arquivo_csv, copia)
+        for nome in ("fundamentos.csv", "precos.csv"):
+            original = dados / nome
+            if original.is_file():
+                shutil.copyfile(original, temporario / nome)
 
         # O código recebe uma cópia dos dados e bibliotecas prontas para usar.
         preparacao = (
+            "from pathlib import Path\n"
             "import pandas as pd\n"
             "import matplotlib\n"
             "matplotlib.use('Agg')\n"
             "import matplotlib.pyplot as plt\n"
-            f"df = pd.read_csv({str(copia)!r}, encoding='utf-8-sig')\n"
+            f"pasta_dados = Path({str(temporario)!r})\n"
+            "fundamentos = pd.read_csv(pasta_dados / 'fundamentos.csv') if (pasta_dados / 'fundamentos.csv').exists() else pd.DataFrame()\n"
+            "precos = pd.read_csv(pasta_dados / 'precos.csv', index_col='data', parse_dates=True) if (pasta_dados / 'precos.csv').exists() else pd.DataFrame()\n"
         )
         script = temporario / "analise.py"
         script.write_text(preparacao + "\n" + codigo, encoding="utf-8")

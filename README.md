@@ -11,7 +11,7 @@ O foco inicial é código curto, comentado e fácil de experimentar.
 | Projeto | O que você aprende | Guia |
 | --- | --- | --- |
 | Projeto01 | Criar três ferramentas, consultar documentos de uma empresa fictícia e manter uma conversa no terminal. | [README do Projeto01](Projeto01/README.md) |
-| Projeto02 | Explorar California Housing Prices com Pandas, usar AGENTS.md e uma skill, executar Python e gerar gráficos. | [README do Projeto02](Projeto02/README.md) |
+| Projeto02 | Comparar empresas da B3 com Fundamentus e TVDatafeed, usar AGENTS.md e duas skills, executar Python e gerar gráficos. | [README do Projeto02](Projeto02/README.md) |
 
 Novos projetos podem acrescentar busca, memória persistente, avaliações e outros
 agentes conforme a série avançar. Atualmente, o repositório contém os Projetos 01 e 02.
@@ -62,18 +62,19 @@ Exemplo de pergunta:
 Continue fazendo perguntas no mesmo terminal. Digite `sair` para encerrar.
 Para sair do ambiente virtual depois, execute `deactivate`.
 
-## Executar a analista de dados imobiliários
+## Executar o analista financeiro
 
-Com o ambiente ativo e o CSV em `Projeto02/dados/housing.csv`:
+Com o ambiente ativo e as dependências instaladas:
 
 ```bash
 python -m Projeto02.main
 ```
 
 Antes de iniciar o agente, o programa imprime o contexto da base e um resumo dos dados.
-Experimente: “Compare os valores dos imóveis por proximidade do oceano e salve um relatório”.
-O [guia do Projeto02](Projeto02/README.md) explica o download da base, a skill e o AGENTS.md.
-Para gerar gráficos, experimente: “Use Python para explorar a relação entre renda e valor dos imóveis”.
+Experimente: “Compare os fundamentos de ITUB4, BBDC4 e BBAS3”.
+O [guia do Projeto02](Projeto02/README.md) explica as fontes, as skills e o AGENTS.md.
+Para gerar gráficos, experimente: “Compare os retornos dessas empresas de 2025-01-01 a 2025-12-31 e faça um gráfico em base 100”.
+O agente consulta os dados durante a conversa; não é necessário baixar um CSV manualmente.
 O executor usa a mesma `.venv` da raiz e salva o código e os arquivos em `Projeto02/resultados`.
 
 ## Organização
@@ -93,10 +94,11 @@ ProjetosBlog/
     ├── README.md
     ├── requirements.txt
     ├── main.py
+    ├── dados_mercado.py    # Fundamentus e TVDatafeed
     ├── execucao_python.py  # Executor local com a .venv da raiz
     ├── AGENTS.md
-    ├── dados/             # CSV original, mantido localmente
-    ├── skills/            # Procedimento de análise em SKILL.md
+    ├── dados/             # Últimos dados coletados, mantidos localmente
+    ├── skills/            # Métodos de fundamentos e retornos em SKILL.md
     └── resultados/        # Relatórios gerados
 ```
 
@@ -110,7 +112,7 @@ No Projeto01, os documentos fictícios de estudo são versionados. Os demais
 arquivos criados em `workspace`, como resumos e rascunhos, ficam apenas na sua máquina.
 A pasta de trabalho pode conter exemplos gerados em execuções anteriores.
 
-No Projeto02, o CSV baixado e os relatórios de análise também ficam locais.
+No Projeto02, os CSVs coletados e os relatórios de análise também ficam locais.
 As instruções, a skill e os READMEs acompanham o repositório.
 
 Todos os dados da Aurora Nuvem foram inventados para os exercícios.

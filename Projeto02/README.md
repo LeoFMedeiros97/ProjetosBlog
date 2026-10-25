@@ -1,16 +1,17 @@
-# Projeto 02 — Uma analista de dados imobiliários com uma skill
+# Projeto 02 — Um analista financeiro com duas skills
 
-Uma evolução do Projeto01: o agente usa Pandas para explorar
-[California Housing Prices](https://www.kaggle.com/datasets/camnugent/california-housing-prices).
-Vamos estudar qualidade dos dados, comparações e gráficos com código simples.
+Um agente simples para comparar empresas da B3 do mesmo setor e subsetor:
+**fundamentos no Fundamentus** e **variação das cotações pelo TVDatafeed**.
 O modelo continua sendo GPT-6 Luna com raciocínio `low`.
 
-O fluxo está em `main.py`, dividido em sete etapas comentadas. A execução de
-Python fica em um pequeno arquivo auxiliar, `execucao_python.py`.
+O objetivo é ensinar como um harness combina instruções, skills, ferramentas,
+fontes externas e cálculos verificáveis. O código está em três arquivos pequenos:
+`main.py` organiza a conversa, `dados_mercado.py` coleta e calcula,
+e `execucao_python.py` executa o Python gerado pelo agente.
 
-## Executar
+## Preparar e executar
 
-Na raiz do repositório, use o ambiente compartilhado:
+Na raiz do repositório, com Python 3.12 e Git instalados:
 
 ```bash
 source .venv/bin/activate
@@ -20,150 +21,141 @@ python -m Projeto02.main
 
 Se ainda não houver ambiente, execute `python3 -m venv .venv` antes de ativá-lo.
 Configure `OPENAI_API_KEY` no `.env` da raiz ou em `Projeto02/.env`.
+O TVDatafeed é instalado do GitHub em um commit fixado no requirements.
 
-O CSV já foi baixado nesta máquina. Em outra máquina, baixe `housing.csv` do
-Kaggle e coloque em `Projeto02/dados/housing.csv`. O [guia dos dados](dados/README.md)
-explica as colunas e o download. O CSV e os resultados estão ignorados pelo Git.
+Não é necessário baixar um CSV antes. Os dados são consultados durante a conversa
+pela internet. O TVDatafeed é usado sem login; alguns símbolos podem estar limitados.
+Também é possível executar `python Projeto02/main.py`. Digite `sair` para encerrar.
 
-Também funciona com `python Projeto02/main.py` ou, dentro de `Projeto02`,
-`python main.py`. Digite `sair` para encerrar. O histórico da conversa dura
-enquanto o programa estiver aberto.
+Antes de criar o agente, o programa imprime o contexto, as fontes, as capacidades,
+as limitações do cálculo e exemplos de perguntas. A abertura não chama a API.
 
-## O que aparece antes do agente
+## Um roteiro para o artigo
 
-Antes de criar o agente, `mostrar_contexto()` usa Pandas e `print` para explicar
-a base e mostrar um resumo calculado localmente. Essa abertura não chama a API.
-Ela apresenta:
+> Compare os fundamentos de ITUB4, BBDC4 e BBAS3.
 
-- O contexto: moradia na Califórnia, com dados do censo de 1990.
-- A unidade de análise: cada linha é um grupo censitário, não uma casa individual.
-- A quantidade de linhas, colunas e categorias de proximidade do oceano.
-- Os valores ausentes e a média das medianas dos valores dos imóveis.
-- As capacidades do agente e algumas perguntas para começar.
+> Explique P/L, P/VP e ROE usando os números dessa comparação.
 
-Na versão baixada, há **20.640 linhas, 10 colunas e 207 valores ausentes em
-`total_bedrooms`**. Os dados históricos não representam os preços atuais.
+> Compare a variação das cotações dessas empresas de 2025-01-01 a 2025-12-31.
 
-## Primeiros pedidos
+> Faça um gráfico da evolução das cotações em base 100.
 
-> Faça um resumo da base e explique as principais colunas.
+> Cruze a comparação de fundamentos com o desempenho passado, explicando as limitações.
 
-> Quais colunas têm valores ausentes? Como isso afeta uma análise?
+> Salve um relatório curto em comparacao_bancos.md.
 
-> Qual é a média de quartos?
+Os tickers são exemplos de uso das ferramentas. O programa confere a classificação
+no Fundamentus, em vez de decidir o setor por memória. Escolha de duas a cinco
+empresas e uma classe de ação por empresa, como ITUB4 em vez de ITUB3 e ITUB4 juntas.
+Se você não informar o período para os retornos, o agente deve pedir as datas.
 
-Nesse pedido, o agente deve esclarecer se você quer a média por domicílio ou
-o total médio por grupo censitário antes de calcular.
+## AGENTS.md, skills e ferramentas
 
-> Compare os valores dos imóveis por proximidade do oceano. Mostre o tamanho de cada grupo.
-
-> Use Python para investigar a relação entre renda mediana e valor mediano dos imóveis. Salve um gráfico.
-
-> Faça um mapa de dispersão usando longitude e latitude, com as cores indicando median_house_value.
-
-> Salve um relatório da comparação em analise_imoveis.md.
-
-> Podemos comparar os preços de 1990 com os de 2025 usando apenas essa base?
-
-As ferramentas aparecem no terminal. Na primeira análise, o agente deve carregar
-a skill e consultar o resumo antes de apresentar suas conclusões.
-
-## Instruções, skill e ferramentas
-
-| Elemento | Responsabilidade neste projeto |
+| Elemento | Função |
 | --- | --- |
-| [AGENTS.md](AGENTS.md) | Define papel, fonte dos dados e acordos gerais para toda a conversa. |
-| [SKILL.md](skills/analise-imoveis/SKILL.md) | Ensina o procedimento de análise e a interpretação das estatísticas. |
-| Ferramentas em `main.py` | Executam os cálculos, o Python e a gravação de relatórios. |
+| [AGENTS.md](AGENTS.md) | Regras gerais: fontes, unidades, datas, pares comparáveis e uso das ferramentas. |
+| [analise-fundamentalista](skills/analise-fundamentalista/SKILL.md) | Método para interpretar os indicadores, com atenção ao setor. |
+| [comparar-retornos](skills/comparar-retornos/SKILL.md) | Método para comparar preços no mesmo intervalo e fazer gráficos em base 100. |
+| Ferramentas | Funções Python que coletam dados, calculam e salvam arquivos. |
 
-O nome `AGENTS.md`, sozinho, não configura o LangChain. Nosso código lê esse
-arquivo e passa o texto para `system_prompt` no `create_agent`.
+Nosso código lê `AGENTS.md` e o passa para `system_prompt` no `create_agent`.
+As skills são lidas pela ferramenta `carregar_skill(nome)` quando o agente precisa
+delas. O nome dos arquivos não faz o LangChain carregá-los automaticamente.
 
-O conteúdo completo da skill entra na conversa quando o modelo chama
-`carregar_skill`. Isso demonstra **carregamento sob demanda**: no início, o
-agente recebe uma descrição curta; o procedimento detalhado é lido quando necessário.
-Essa skill pertence à aplicação e é carregada explicitamente pelo nosso código.
-
-| Ferramenta | O que faz |
+| Ferramenta | Resultado |
 | --- | --- |
-| `carregar_skill()` | Lê o procedimento `analise-imoveis`. |
-| `resumo_dados()` | Mostra colunas, qualidade, distribuição das categorias e estatísticas dos valores medianos. |
-| `comparar_regioes()` | Compara as categorias de `ocean_proximity`, com contagem, média e mediana. |
-| `executar_python(codigo)` | Faz análises personalizadas e gráficos na `.venv` da raiz. |
-| `salvar_relatorio(nome, conteudo)` | Cria um Markdown em `resultados`, sem sobrescrever relatórios. |
+| `carregar_skill(nome)` | Procedimento de fundamentos ou de retornos. |
+| `comparar_fundamentos(papeis)` | Indicadores, classificação, fontes, datas e CSV dos fundamentos. |
+| `comparar_retornos(papeis, inicio, fim)` | Variação da cotação, período efetivo, fontes e CSV dos preços comuns. |
+| `executar_python(codigo)` | Cálculos adicionais e gráficos na `.venv` da raiz. |
+| `salvar_relatorio(nome, conteudo)` | Novo relatório Markdown, sem sobrescrever arquivos existentes. |
 
-Apesar do nome `comparar_regioes`, o agrupamento é por proximidade aproximada do
-oceano. As categorias não são cidades nem regiões administrativas.
+## Fontes e indicadores
 
-## Entendendo os números
+O Fundamentus é lido por HTTPS, com Requests e lxml, preservando os números no
+formato brasileiro. `11,43` vira `11.43`; `6,4%` vira `6.4`, mantendo o percentual.
+O código não usa o pacote Python `fundamentus`: na versão testada (0.3.2), a conversão
+alterou os decimais de alguns múltiplos. O pequeno leitor está em `dados_mercado.py`.
 
-`median_house_value` é o valor mediano dos imóveis de cada grupo censitário, em USD.
-Por isso, os cálculos sobre essa coluna têm um significado específico:
+| Campo | Significado e unidade |
+| --- | --- |
+| `pl` | Preço/lucro, em vezes. |
+| `pvp` | Preço/valor patrimonial, em vezes. |
+| `roe_pct` | Retorno sobre patrimônio líquido, em %. |
+| `dividend_yield_pct` | Dividend yield exibido pela fonte, em %. |
+| `margem_liquida_pct` | Margem líquida, em %, quando pertinente. |
+| `ev_ebitda` | Valor da firma/EBITDA, em vezes, quando disponível. |
+| `cotacao_brl` | Cotação em reais, com sua data. |
+
+Campos ausentes permanecem ausentes. Para bancos, a skill prioriza P/VP e ROE,
+contextualiza P/L e DY e não usa EV/EBITDA para classificá-los. Um único indicador
+não define a melhor empresa e uma cotação nominal menor não indica desconto.
+
+Cada registro inclui fonte, data de coleta, data da cotação e último balanço
+processado. O retrato de uma empresa é reutilizado durante a sessão; reinicie o
+programa para consultar novamente. A coleta atual não é um histórico de fundamentos
+e não serve como dado conhecido no passado para um backtest.
+
+## O que significa retorno neste projeto
 
 ```text
-Quantidade de linhas = quantidade de grupos censitários
-Média de median_house_value = média das medianas desses grupos
-Mediana de median_house_value = mediana das medianas desses grupos
+Variação do preço (%) = (fechamento final / fechamento inicial - 1) × 100
+Base 100 = fechamento / primeiro fechamento comum × 100
 ```
 
-Cada grupo recebe o mesmo peso. Essas estatísticas não são automaticamente a
-média ou mediana dos preços de todas as casas. Somar as medianas também não
-produz o valor total do mercado imobiliário.
+O TVDatafeed consulta barras diárias na bolsa `BMFBOVESPA`. O commit utilizado
+solicita ajuste por desdobramentos (`splits`). Não coletamos proventos nem
+calculamos seu reinvestimento; o resultado não é retorno total com dividendos ou JCP.
+Somar o DY atual à variação histórica também não produz esse retorno total.
 
-Os totais de cômodos, quartos, população e domicílios pertencem ao grupo inteiro.
-`total_rooms` significa **cômodos**; `total_bedrooms`, **quartos de dormir**.
-Uma média por grupo é diferente de uma razão de quartos por domicílio. Para
-essa razão, somamos quartos e domicílios no mesmo recorte de registros válidos
-e dividimos os totais. Valores ausentes de quartos não são tratados como zero.
+O cálculo usa somente datas com preços válidos para todas as ações, sem preencher
+lacunas. A ferramenta informa o intervalo solicitado e o efetivamente disponível.
+Use fim até ontem para evitar uma barra diária ainda aberta. O limite de até
+5000 barras, a existência de pregões e a disponibilidade das ações podem reduzir
+a cobertura. A conclusão deve respeitar o período efetivo, sem extrapolar.
 
-`median_income` permanece na escala original da base; os valores crus não devem
-ser rotulados diretamente como dólares. A base não tem série temporal ou
-endereços individuais. Ao comparar categorias, confira o tamanho da amostra:
-`ISLAND`, por exemplo, tem apenas cinco registros na versão baixada.
+## Python e gráficos
 
-## Python na .venv da raiz
+O executor usa a `.venv` da raiz e recebe cópias dos últimos arquivos coletados:
 
-O projeto e o executor usam a mesma `.venv` da raiz. A ferramenta inicia outro
-processo com `.venv/bin/python`, que já recebe:
+- `fundamentos`: tabela dos indicadores, com uma linha por papel.
+- `precos`: fechamentos no período comum, índice de datas e uma coluna por papel.
+- `pd` e `plt`: Pandas e Matplotlib.
 
-- `df`: DataFrame com uma cópia dos dados completos e as dez colunas originais.
-- `pd`: Pandas.
-- `plt`: Matplotlib, configurado para salvar gráficos sem abrir uma janela.
+Consulte as ferramentas de comparação antes de analisar essas tabelas. Sem coleta,
+a tabela correspondente fica vazia. Confira papéis e datas: um arquivo anterior
+não é automaticamente o recorte de uma nova pergunta.
 
-Exemplo de código que o agente pode executar:
+Exemplo de código gerado após `comparar_retornos`:
 
 ```python
-colunas = ["median_income", "median_house_value"]
-print(df[colunas].corr(method="pearson"))
-df.plot.scatter(x="median_income", y="median_house_value", alpha=0.15)
-plt.title("Renda e valor mediano dos imóveis — censo de 1990")
-plt.xlabel("Renda mediana (escala original da base)")
-plt.ylabel("Valor mediano do grupo censitário (USD)")
+print(precos.index.min(), precos.index.max())
+print((precos.iloc[-1] / precos.iloc[0] - 1) * 100)
+base100 = precos / precos.iloc[0] * 100
+base100.plot(title="Evolução das cotações — base 100")
+plt.xlabel("Data")
+plt.ylabel("Base 100 no primeiro fechamento comum")
 plt.tight_layout()
-plt.savefig("renda_e_valor.png")
+plt.savefig("comparacao_base100.png")
 ```
 
-Cada chamada cria uma pasta `resultados/python_<identificador>` com o trecho
-gerado em `codigo.py` e os arquivos da análise. Esse trecho usa `df`, `pd` e `plt`
-fornecidos pelo executor. Use nomes relativos, como `grafico.png`, para salvar
-na pasta da execução. A ferramenta devolve status, saída impressa e arquivos.
+Cada execução cria `resultados/python_<identificador>` com o trecho em `codigo.py`
+e os arquivos gerados. O trecho usa as variáveis fornecidas pelo executor. Use
+nomes relativos para salvar figuras; a pasta atual já é a pasta dessa execução.
+Há limite de 30 segundos e 12.000 caracteres de saída devolvida ao modelo.
+As variáveis não persistem entre chamadas.
 
-O limite é de 30 segundos por execução e 12.000 caracteres de saída devolvida.
-As variáveis não persistem entre chamadas; cada análise começa com os dados completos.
-O histórico da conversa e os arquivos gerados permanecem disponíveis.
-
-É execução local, **não um sandbox de segurança**. A `.venv` organiza bibliotecas;
-o código mantém as permissões do seu usuário, sem bloqueio de rede ou limite de
-memória. As variáveis de ambiente do agente, incluindo a chave da API, não são
-repassadas ao subprocesso; arquivos acessíveis no computador continuam acessíveis.
-O AGENTS.md orienta o uso, mas não impõe isolamento. O fluxo normal usa uma cópia
-temporária do CSV e mantém o original intacto.
+A execução é local, **não um sandbox de segurança**. A `.venv` organiza bibliotecas;
+o código tem as permissões do seu usuário, sem bloqueio de rede ou limite de memória.
+As variáveis de ambiente do agente não são repassadas, mas arquivos acessíveis no
+computador continuam acessíveis. As instruções orientam o uso, sem impor isolamento.
 
 ## Estrutura
 
 ```text
 Projeto02/
 ├── main.py
+├── dados_mercado.py
 ├── execucao_python.py
 ├── AGENTS.md
 ├── README.md
@@ -171,28 +163,24 @@ Projeto02/
 ├── .env.example
 ├── dados/
 │   ├── README.md
-│   └── housing.csv        # Local, ignorado pelo Git
+│   ├── fundamentos.csv    # Última comparação; local e ignorado pelo Git
+│   └── precos.csv         # Último período comum; local e ignorado pelo Git
 ├── skills/
-│   └── analise-imoveis/
-│       └── SKILL.md
+│   ├── analise-fundamentalista/SKILL.md
+│   └── comparar-retornos/SKILL.md
 └── resultados/            # Relatórios, código e gráficos; ignorados pelo Git
 ```
 
-## Experimentos para estudar
-
-1. Execute o programa e leia a abertura antes de enviar uma pergunta.
-2. Compare as regras gerais do `AGENTS.md` com o procedimento do `SKILL.md`.
-3. Peça uma comparação por proximidade do oceano e acompanhe as ferramentas.
-4. Faça uma pergunta complementar para observar o histórico.
-5. Peça um gráfico, abra o `codigo.py` gerado e compare com a figura.
-6. Salve um relatório e confira os números nas respostas das ferramentas.
-
-A versão atual faz análise descritiva. Uma próxima etapa pode introduzir
-limpeza de dados, treinamento de modelos e avaliação, cada um com sua própria skill.
+As fontes são serviços externos: mudanças no HTML, restrições de acesso e falhas
+podem interromper a coleta. O agente deve explicar a falha e não inventar dados
+ou mudar de provedor silenciosamente. Se o TVDatafeed retornar vazio, há somente
+uma nova tentativa por papel; uma segunda falha interrompe a comparação.
+Os certificados do sistema são usados com
+Truststore para o TVDatafeed; a verificação TLS permanece ativa.
 
 ## Referências
 
-- [California Housing Prices no Kaggle](https://www.kaggle.com/datasets/camnugent/california-housing-prices)
-- [Origem e descrição da versão didática, por Aurélien Géron](https://github.com/ageron/handson-ml2/tree/master/datasets/housing)
-- [Padrão de skills no LangChain](https://docs.langchain.com/oss/python/langchain/multi-agent/skills)
-- [Ferramentas no LangChain](https://docs.langchain.com/oss/python/langchain/tools)
+- [Fundamentus](https://www.fundamentus.com.br/)
+- [TVDatafeed: instalação, uso sem login e limite de barras](https://github.com/rongardF/tvdatafeed)
+- [Código do conector no commit fixado: ajuste por splits](https://github.com/rongardF/tvdatafeed/blob/e6f6aaa7de439ac6e454d9b26d2760ded8dc4923/tvDatafeed/main.py)
+- [Agentes no LangChain](https://docs.langchain.com/oss/python/langchain/agents)
